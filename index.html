@@ -1,0 +1,517 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ayaan rauf</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+        --blue-50: rgba(224, 244, 255, 0.6);
+        --blue-100: #d5f0ff;
+        --blue-200: #a7dbff;
+        --blue-300: #7fcaff;
+        --outline: rgba(0, 0, 0, 0.15);
+        --panel-radius: 20px;
+        --shadow-soft: 0 18px 45px rgba(119, 191, 255, 0.3);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+        margin: 0;
+        font-family: "Roboto Mono", monospace;
+        color: #000;
+        background: repeating-linear-gradient(135deg,
+            rgba(127, 202, 255, 0.28) 0px,
+            rgba(127, 202, 255, 0.28) 48px,
+            rgba(213, 240, 255, 0.28) 48px,
+            rgba(213, 240, 255, 0.28) 96px);
+        position: relative;
+        overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    button {
+        font-family: "Roboto Mono", monospace;
+    }
+
+    #bubble-layer {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
+    }
+    .bubble {
+        position: absolute;
+        bottom: -15vh;
+        width: var(--bubble-size);
+        height: var(--bubble-size);
+        border-radius: 50%;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        background: rgba(224, 244, 255, 0.25);
+        backdrop-filter: blur(2px);
+        animation: float-up linear forwards;
+        opacity: 0.55;
+    }
+    @keyframes float-up {
+        from { transform: translate(-50%, 0) scale(1); opacity: 0.55; }
+        to { transform: translate(-50%, -130vh) scale(1.15); opacity: 0; }
+    }
+
+    #app {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 6vh;
+    }
+
+    #top-bar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 24px clamp(24px, 6vw, 80px) 12px;
+        background: rgba(224, 244, 255, 0.55);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 12px 40px rgba(111, 184, 255, 0.15);
+    }
+    #top-bar .brand {
+        font-size: clamp(1.2rem, 1.6vw, 1.6rem);
+        letter-spacing: 0.12em;
+        text-transform: lowercase;
+        text-align: center;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .tab-nav {
+        display: none;
+        align-items: center;
+        gap: 12px;
+    }
+    .tab-button {
+        position: relative;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        border-radius: 999px;
+        padding: 10px 22px;
+        background: linear-gradient(180deg, rgba(213, 240, 255, 0.8), rgba(127, 202, 255, 0.9));
+        color: #000;
+        text-transform: lowercase;
+        font-size: 0.9rem;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease, border-color 0.3s ease;
+    }
+    .tab-button::after {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        opacity: 0.7;
+    }
+    .tab-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(111, 184, 255, 0.35);
+    }
+    .tab-button.active {
+        background: linear-gradient(180deg, rgba(127, 202, 255, 0.95), rgba(92, 172, 243, 0.95));
+        border-color: rgba(0, 0, 0, 0.35);
+        box-shadow: 0 14px 32px rgba(92, 172, 243, 0.45);
+    }
+
+    main {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        padding: clamp(24px, 5vw, 64px);
+    }
+
+    .panel-grid {
+        width: min(1100px, 100%);
+        display: flex;
+        gap: clamp(16px, 2.5vw, 32px);
+        transition: max-width 0.4s ease, transform 0.4s ease;
+    }
+    .panel-grid[data-mode="overview"] .panel {
+        flex: 1;
+    }
+    .panel-grid[data-mode="expanded"] {
+        justify-content: center;
+    }
+    .panel-grid[data-mode="expanded"] .panel {
+        display: none;
+    }
+    .panel-grid[data-mode="expanded"] .panel.active {
+        display: flex;
+        width: min(820px, 92vw);
+    }
+
+    .panel {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        border-radius: var(--panel-radius);
+        border: 1px solid var(--outline);
+        background: rgba(224, 244, 255, 0.28);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+        min-height: clamp(360px, 60vh, 620px);
+        transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+    }
+    .panel:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 60px rgba(111, 184, 255, 0.4);
+    }
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: linear-gradient(180deg, var(--blue-200), var(--blue-300));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+    }
+    .panel-title {
+        font-weight: 600;
+        text-transform: lowercase;
+        letter-spacing: 0.08em;
+    }
+    .panel-actions {
+        display: flex;
+        gap: 8px;
+    }
+    .panel-button {
+        border: 1px solid rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: lowercase;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .panel-button:hover {
+        background: rgba(255, 255, 255, 0.65);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(111, 184, 255, 0.25);
+    }
+
+    .panel-body {
+        flex: 1;
+        padding: 24px;
+        background: rgba(224, 244, 255, 0.55);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .panel-body.blank {
+        justify-content: center;
+        align-items: center;
+        color: rgba(0, 0, 0, 0.4);
+    }
+
+    .link-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .link-slot {
+        border: 1px solid rgba(0, 0, 0, 0.28);
+        background: rgba(224, 244, 255, 0.65);
+        border-radius: 14px;
+        padding: 16px 20px;
+        text-align: left;
+        text-transform: lowercase;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.25s ease;
+    }
+    .link-slot:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 40px rgba(111, 184, 255, 0.35);
+        background: rgba(224, 244, 255, 0.85);
+    }
+
+    .blog-frame {
+        flex: 1;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 14px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.4);
+    }
+    .blog-frame iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    body.layout-expanded #top-bar {
+        justify-content: space-between;
+    }
+    body.layout-expanded .tab-nav {
+        display: flex;
+    }
+    body.layout-expanded .brand {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    body.layout-overview #top-bar .brand {
+        margin-inline: auto;
+    }
+    body.layout-overview .tab-nav {
+        display: none;
+    }
+    body.layout-expanded .panel {
+        transform: none;
+        box-shadow: var(--shadow-soft);
+    }
+    body.layout-expanded .panel:hover {
+        transform: none;
+    }
+    body.layout-expanded .panel .panel-expand {
+        display: none;
+    }
+    body.layout-expanded .panel.active .panel-collapse {
+        display: inline-flex;
+    }
+    .panel-collapse {
+        display: none;
+    }
+
+    body.layout-mobile #top-bar {
+        justify-content: center;
+        padding-inline: clamp(16px, 6vw, 32px);
+    }
+    body.layout-mobile #top-bar .brand {
+        display: none;
+    }
+    body.layout-mobile .tab-nav {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+    }
+    body.layout-mobile main {
+        padding: clamp(16px, 4vw, 32px);
+    }
+    body.layout-mobile .panel-grid {
+        width: 100%;
+    }
+    body.layout-mobile .panel-grid[data-mode="expanded"] .panel.active {
+        width: min(640px, 100%);
+    }
+    body.layout-mobile .panel-actions {
+        display: none;
+    }
+    body.layout-mobile .panel {
+        min-height: calc(100vh - 220px);
+    }
+
+    @media (max-width: 960px) {
+        .panel-grid[data-mode="overview"] {
+            flex-direction: column;
+        }
+        .panel-grid[data-mode="overview"] .panel {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .tab-button {
+            padding-inline: 18px;
+            font-size: 0.85rem;
+        }
+        .panel-body {
+            padding: 20px;
+        }
+        .panel {
+            min-height: calc(100vh - 240px);
+        }
+    }
+  </style>
+</head>
+<body class="layout-overview">
+  <div id="bubble-layer"></div>
+  <div id="app">
+    <header id="top-bar">
+      <div class="brand">ayaan rauf</div>
+      <nav class="tab-nav" aria-label="main navigation">
+        <button class="tab-button active" data-target="home" type="button">home</button>
+        <button class="tab-button" data-target="links" type="button">links</button>
+        <button class="tab-button" data-target="blog" type="button">blog</button>
+      </nav>
+    </header>
+    <main>
+      <div class="panel-grid" data-mode="overview">
+        <section class="panel" data-page="links">
+          <header class="panel-header">
+            <span class="panel-title">links</span>
+            <div class="panel-actions">
+              <button class="panel-button panel-expand" type="button">expand</button>
+              <button class="panel-button panel-collapse" type="button">collapse</button>
+            </div>
+          </header>
+          <div class="panel-body">
+            <div class="link-list">
+              <button class="link-slot" type="button">link slot</button>
+              <button class="link-slot" type="button">link slot</button>
+              <button class="link-slot" type="button">link slot</button>
+            </div>
+          </div>
+        </section>
+        <section class="panel active" data-page="home">
+          <header class="panel-header">
+            <span class="panel-title">home</span>
+            <div class="panel-actions">
+              <button class="panel-button panel-expand" type="button">expand</button>
+              <button class="panel-button panel-collapse" type="button">collapse</button>
+            </div>
+          </header>
+          <div class="panel-body blank">
+          </div>
+        </section>
+        <section class="panel" data-page="blog">
+          <header class="panel-header">
+            <span class="panel-title">blog</span>
+            <div class="panel-actions">
+              <button class="panel-button panel-expand" type="button">expand</button>
+              <button class="panel-button panel-collapse" type="button">collapse</button>
+            </div>
+          </header>
+          <div class="panel-body">
+            <div class="blog-frame">
+              <iframe src="https://bearblog.dev" title="bearblog feed" loading="lazy"></iframe>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script>
+    (function () {
+      const body = document.body;
+      const panelGrid = document.querySelector('.panel-grid');
+      const panels = Array.from(document.querySelectorAll('.panel'));
+      const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
+      const expandButtons = Array.from(document.querySelectorAll('.panel-expand'));
+      const collapseButtons = Array.from(document.querySelectorAll('.panel-collapse'));
+
+      let activePage = 'home';
+      let currentMode = 'overview';
+      let desktopMode = 'overview';
+
+      function setActivePage(page) {
+        activePage = page;
+        panels.forEach(panel => {
+          if (panel.dataset.page === page) {
+            panel.classList.add('active');
+          } else {
+            panel.classList.remove('active');
+          }
+        });
+        tabButtons.forEach(tab => {
+          tab.classList.toggle('active', tab.dataset.target === page);
+        });
+      }
+
+      function applyModeClass(mode) {
+        body.classList.remove('layout-overview', 'layout-expanded', 'layout-mobile');
+        body.classList.add(`layout-${mode}`);
+        if (mode === 'expanded' || mode === 'overview') {
+          panelGrid.dataset.mode = mode;
+        } else if (mode === 'mobile') {
+          panelGrid.dataset.mode = 'expanded';
+        }
+      }
+
+      function setLayoutMode(mode) {
+        if (mode === currentMode) {
+          applyModeClass(mode);
+          return;
+        }
+        if (mode === 'overview' || mode === 'expanded') {
+          desktopMode = mode;
+        }
+        currentMode = mode;
+        applyModeClass(mode);
+      }
+
+      function evaluateViewport() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const portrait = height > width;
+        const shouldBeMobile = width <= 900 || (portrait && width <= 1200);
+
+        if (shouldBeMobile) {
+          setLayoutMode('mobile');
+        } else {
+          setLayoutMode(desktopMode);
+        }
+      }
+
+      expandButtons.forEach(btn => {
+        btn.addEventListener('click', event => {
+          const panel = event.currentTarget.closest('.panel');
+          setActivePage(panel.dataset.page);
+          setLayoutMode('expanded');
+        });
+      });
+
+      collapseButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          setLayoutMode('overview');
+        });
+      });
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.target;
+          setActivePage(target);
+          if (currentMode === 'overview') {
+            setLayoutMode('expanded');
+          } else if (currentMode === 'mobile') {
+            applyModeClass('mobile');
+          }
+        });
+      });
+
+      window.addEventListener('resize', evaluateViewport);
+      window.addEventListener('orientationchange', evaluateViewport);
+
+      setActivePage(activePage);
+      evaluateViewport();
+
+      const bubbleLayer = document.getElementById('bubble-layer');
+      const bubbleCount = 18;
+
+      function spawnBubble() {
+        const bubble = document.createElement('span');
+        bubble.className = 'bubble';
+        const size = Math.random() * 24 + 12;
+        const duration = Math.random() * 12 + 14;
+        const delay = Math.random() * duration;
+
+        bubble.style.setProperty('--bubble-size', `${size}px`);
+        bubble.style.left = `${Math.random() * 100}%`;
+        bubble.style.animationDuration = `${duration}s`;
+        bubble.style.animationDelay = `-${delay}s`;
+
+        bubbleLayer.appendChild(bubble);
+        bubble.addEventListener('animationend', () => {
+          bubble.remove();
+          spawnBubble();
+        });
+      }
+
+      for (let i = 0; i < bubbleCount; i += 1) {
+        spawnBubble();
+      }
+    }());
+  </script>
+</body>
+</html>
