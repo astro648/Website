@@ -69,7 +69,7 @@
         display: flex;
         flex-direction: column;
         padding-bottom: 6vh;
-        overflow: hidden;
+        overflow: visible;
     }
 
     #top-bar {
@@ -153,7 +153,7 @@
         width: 100%;
         min-height: 0;
         padding: clamp(24px, 5vw, 64px);
-        overflow: hidden;
+        overflow: visible;
     }
 
     .panel-grid {
@@ -164,7 +164,7 @@
         flex: 1;
         min-height: 0;
         height: 100%;
-        overflow: hidden;
+        overflow: visible;
         align-items: stretch;
     }
     .panel-grid[data-mode="overview"] .panel {
@@ -252,6 +252,8 @@
         flex-direction: column;
         gap: 12px;
         flex: 1;
+        min-height: 0;
+        max-height: 100%;
         overflow-y: auto;
         padding-right: 4px;
     }
@@ -345,6 +347,24 @@
         min-height: 0;
         height: 100%;
     }
+    .blog-layout[data-view="list"] {
+        gap: 0;
+    }
+    .blog-layout[data-view="list"] .blog-list-panel {
+        width: 100%;
+    }
+    .blog-layout[data-view="list"] .blog-content-panel {
+        display: none;
+    }
+    .blog-layout[data-view="content"] {
+        gap: 0;
+    }
+    .blog-layout[data-view="content"] .blog-list-panel {
+        display: none;
+    }
+    .blog-layout[data-view="content"] .blog-content-panel {
+        width: 100%;
+    }
     .blog-list-panel {
         width: clamp(220px, 30%, 280px);
         display: flex;
@@ -360,6 +380,7 @@
         overflow-x: hidden;
         padding-right: 6px;
         min-height: 0;
+        max-height: 100%;
     }
     .blog-list .empty-message,
     .blog-list .loading-message {
@@ -611,7 +632,7 @@
             </div>
           </header>
           <div class="panel-body">
-            <div class="blog-layout" data-view="split">
+            <div class="blog-layout" data-view="list">
               <div class="blog-list-panel">
                 <div class="blog-list" aria-live="polite">
                   <p class="empty-message">loading posts...</p>
@@ -653,7 +674,7 @@
       }
 
       if (blogLayout && !blogLayout.dataset.view) {
-        blogLayout.dataset.view = 'split';
+        blogLayout.dataset.view = 'list';
       }
 
       function resolveAssetUrl(path) {
@@ -691,15 +712,19 @@
         return currentMode === 'mobile';
       }
 
+      function usingDesktopExpandedBlog() {
+        return currentMode === 'expanded' && activePage === 'blog' && !isMobileMode();
+      }
+
       function syncBlogLayoutView() {
         if (!blogLayout) {
           return;
         }
         if (isMobileMode()) {
           blogLayout.dataset.view = currentBlogPath ? 'content' : 'list';
-        } else {
-          blogLayout.dataset.view = 'split';
+          return;
         }
+        blogLayout.dataset.view = usingDesktopExpandedBlog() ? 'content' : 'list';
       }
 
       function setActivePage(page) {
@@ -714,6 +739,7 @@
         tabButtons.forEach(tab => {
           tab.classList.toggle('active', tab.dataset.target === page);
         });
+        syncBlogLayoutView();
       }
 
       function applyModeClass(mode) {
