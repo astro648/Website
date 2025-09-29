@@ -69,6 +69,7 @@
         display: flex;
         flex-direction: column;
         padding-bottom: 6vh;
+        overflow: hidden;
     }
 
     #top-bar {
@@ -148,7 +149,11 @@
         flex: 1;
         display: flex;
         justify-content: center;
+        align-items: stretch;
+        width: 100%;
+        min-height: 0;
         padding: clamp(24px, 5vw, 64px);
+        overflow: hidden;
     }
 
     .panel-grid {
@@ -156,9 +161,15 @@
         display: flex;
         gap: clamp(16px, 2.5vw, 32px);
         transition: max-width 0.4s ease, transform 0.4s ease;
+        flex: 1;
+        min-height: 0;
+        height: 100%;
+        overflow: hidden;
+        align-items: stretch;
     }
     .panel-grid[data-mode="overview"] .panel {
         flex: 1;
+        min-height: 0;
     }
     .panel-grid[data-mode="expanded"] {
         justify-content: center;
@@ -169,6 +180,7 @@
     .panel-grid[data-mode="expanded"] .panel.active {
         display: flex;
         width: min(820px, 92vw);
+        height: 100%;
     }
 
     .panel {
@@ -180,7 +192,9 @@
         background: rgba(224, 244, 255, 0.28);
         box-shadow: var(--shadow-soft);
         overflow: hidden;
-        min-height: clamp(360px, 60vh, 620px);
+        min-height: clamp(260px, 56vh, 620px);
+        max-height: min(620px, calc(100vh - 96px));
+        height: 100%;
         transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
     }
     .panel:hover {
@@ -329,9 +343,16 @@
         display: flex;
         gap: 18px;
         min-height: 0;
+        height: 100%;
+    }
+    .blog-list-panel {
+        width: clamp(220px, 30%, 280px);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
     }
     .blog-list {
-        width: clamp(200px, 28%, 260px);
+        flex: 1;
         display: flex;
         flex-direction: column;
         gap: 12px;
@@ -352,6 +373,7 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 4px;
+        width: 100%;
         border: 1px solid rgba(0, 0, 0, 0.28);
         background: rgba(224, 244, 255, 0.6);
         border-radius: 14px;
@@ -382,9 +404,35 @@
         opacity: 0.65;
         text-transform: none;
     }
+    .blog-content-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    .blog-back-button {
+        display: none;
+        border: 1px solid rgba(0, 0, 0, 0.28);
+        background: rgba(224, 244, 255, 0.7);
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        letter-spacing: 0.06em;
+        text-transform: lowercase;
+        cursor: pointer;
+        align-self: flex-start;
+        margin-bottom: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .blog-back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(111, 184, 255, 0.35);
+        background: rgba(224, 244, 255, 0.9);
+    }
     .blog-content {
         flex: 1;
         min-height: 0;
+        overflow-y: auto;
     }
 
     body.layout-overview #top-bar {
@@ -442,21 +490,42 @@
     }
     body.layout-mobile .panel {
         min-height: calc(100vh - 220px);
+        max-height: none;
+        height: auto;
     }
     body.layout-mobile .blog-layout {
         flex-direction: column;
+        height: 100%;
+    }
+    body.layout-mobile .blog-list-panel,
+    body.layout-mobile .blog-content-panel {
+        width: 100%;
+    }
+    body.layout-mobile .blog-layout[data-view="list"] .blog-content-panel {
+        display: none;
+    }
+    body.layout-mobile .blog-layout[data-view="content"] .blog-list-panel {
+        display: none;
+    }
+    body.layout-mobile .blog-back-button {
+        display: none;
+    }
+    body.layout-mobile .blog-layout[data-view="content"] .blog-back-button {
+        display: inline-flex;
     }
     body.layout-mobile .blog-list {
-        width: 100%;
-        max-height: 160px;
+        max-height: min(50vh, 360px);
     }
 
     @media (max-width: 960px) {
         .panel-grid[data-mode="overview"] {
             flex-direction: column;
+            height: auto;
+            overflow: visible;
         }
         .panel-grid[data-mode="overview"] .panel {
             width: 100%;
+            height: auto;
         }
     }
 
@@ -542,13 +611,18 @@
             </div>
           </header>
           <div class="panel-body">
-            <div class="blog-layout">
-              <div class="blog-list" aria-live="polite">
-                <p class="empty-message">loading posts...</p>
+            <div class="blog-layout" data-view="split">
+              <div class="blog-list-panel">
+                <div class="blog-list" aria-live="polite">
+                  <p class="empty-message">loading posts...</p>
+                </div>
               </div>
-              <article class="markdown-content blog-content" data-markdown-target="blog">
-                <p class="loading-message">pick a post to start reading.</p>
-              </article>
+              <div class="blog-content-panel">
+                <button class="blog-back-button" type="button">back</button>
+                <article class="markdown-content blog-content" data-markdown-target="blog">
+                  <p class="loading-message">pick a post to start reading.</p>
+                </article>
+              </div>
             </div>
           </div>
         </section>
@@ -566,6 +640,8 @@
       const homeTarget = document.querySelector('[data-markdown-target="home"]');
       const blogList = document.querySelector('.blog-list');
       const blogContent = document.querySelector('.blog-content');
+      const blogLayout = document.querySelector('.blog-layout');
+      const blogBackButton = document.querySelector('.blog-back-button');
       const parseMarkdown = (window.marked && window.marked.parse)
         ? window.marked.parse.bind(window.marked)
         : (text) => `<pre>${text.replace(/[&<>]/g, (char) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[char] || char))}</pre>`;
@@ -574,6 +650,10 @@
 
       if (usingFileProtocol) {
         console.info('Tip: start a quick local server (for example: `python -m http.server`) so markdown content can load.');
+      }
+
+      if (blogLayout && !blogLayout.dataset.view) {
+        blogLayout.dataset.view = 'split';
       }
 
       function resolveAssetUrl(path) {
@@ -607,6 +687,21 @@
       let desktopMode = 'overview';
       let currentBlogPath = null;
 
+      function isMobileMode() {
+        return currentMode === 'mobile';
+      }
+
+      function syncBlogLayoutView() {
+        if (!blogLayout) {
+          return;
+        }
+        if (isMobileMode()) {
+          blogLayout.dataset.view = currentBlogPath ? 'content' : 'list';
+        } else {
+          blogLayout.dataset.view = 'split';
+        }
+      }
+
       function setActivePage(page) {
         activePage = page;
         panels.forEach(panel => {
@@ -629,6 +724,7 @@
         } else if (mode === 'mobile') {
           panelGrid.dataset.mode = 'expanded';
         }
+        syncBlogLayoutView();
       }
 
       function setLayoutMode(mode) {
@@ -802,13 +898,19 @@
           return;
         }
         if (currentBlogPath === entry.path) {
+          if (isMobileMode()) {
+            syncBlogLayoutView();
+          }
           return;
         }
         currentBlogPath = entry.path;
-        blogList.querySelectorAll('.blog-button').forEach(btn => {
-          btn.classList.toggle('active', btn === button);
-        });
+        if (blogList) {
+          blogList.querySelectorAll('.blog-button').forEach(btn => {
+            btn.classList.toggle('active', btn === button);
+          });
+        }
         setStatusMessage(blogContent, 'loading post...');
+        syncBlogLayoutView();
         try {
           const html = await loadMarkdown(entry.path);
           blogContent.innerHTML = html;
@@ -820,6 +922,8 @@
             : 'unable to load this post';
           setStatusMessage(blogContent, message, 'empty');
           currentBlogPath = null;
+        } finally {
+          syncBlogLayoutView();
         }
       }
 
@@ -841,14 +945,55 @@
             ? (usingFileProtocol ? 'local file mode cannot load posts.' : 'unable to load posts.')
             : 'no posts yet.';
           blogList.innerHTML = `<p class="empty-message">${listMessage}</p>`;
+          currentBlogPath = null;
+          syncBlogLayoutView();
           return;
         }
-        posts.forEach((post, index) => {
+
+        let firstChoice = null;
+        let preservedSelection = null;
+
+        posts.forEach(post => {
           const button = buildBlogButton(post);
           blogList.appendChild(button);
-          if (index === 0) {
-            selectBlog(post, button);
+          if (!firstChoice) {
+            firstChoice = { post, button };
           }
+          if (!preservedSelection && currentBlogPath === post.path) {
+            preservedSelection = { post, button };
+          }
+        });
+
+        const shouldAutoOpen = !isMobileMode();
+        if (preservedSelection) {
+          selectBlog(preservedSelection.post, preservedSelection.button);
+          return;
+        }
+        if (shouldAutoOpen && firstChoice) {
+          selectBlog(firstChoice.post, firstChoice.button);
+          return;
+        }
+
+        currentBlogPath = null;
+        if (blogList) {
+          blogList.querySelectorAll('.blog-button').forEach(btn => btn.classList.remove('active'));
+        }
+        setStatusMessage(blogContent, 'pick a post to start reading.', 'loading');
+        syncBlogLayoutView();
+      }
+
+      if (blogBackButton) {
+        blogBackButton.addEventListener('click', () => {
+          if (!isMobileMode()) {
+            return;
+          }
+          currentBlogPath = null;
+          if (blogList) {
+            blogList.querySelectorAll('.blog-button').forEach(btn => btn.classList.remove('active'));
+          }
+          setStatusMessage(blogContent, 'pick a post to start reading.', 'loading');
+          blogContent.scrollTop = 0;
+          syncBlogLayoutView();
         });
       }
 

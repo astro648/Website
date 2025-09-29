@@ -28,7 +28,7 @@ def derive_title(markdown_path: Path) -> str:
 
 def build_manifest() -> dict:
     posts = []
-    for path in BLOGS_DIR.glob("*.md"):
+    for path in sorted(BLOGS_DIR.glob("*.md")):
         if not path.is_file():
             continue
         stat = path.stat()
@@ -51,8 +51,12 @@ def build_manifest() -> dict:
 
 
 def main() -> None:
+    BLOGS_DIR.mkdir(parents=True, exist_ok=True)
     manifest = build_manifest()
-    OUTPUT_PATH.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    payload = json.dumps(manifest, indent=2) + "\n"
+    if OUTPUT_PATH.exists():
+        OUTPUT_PATH.unlink()
+    OUTPUT_PATH.write_text(payload, encoding="utf-8")
     print(f"Wrote {len(manifest['posts'])} posts to {OUTPUT_PATH.relative_to(ROOT)}")
 
 
