@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ayaan rauf</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/mii.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
   <style>
     :root {
         --blue-50: rgba(224, 244, 255, 0.6);
@@ -73,13 +75,31 @@
         position: relative;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
         gap: 16px;
+        flex-wrap: wrap;
         padding: 24px clamp(24px, 6vw, 80px) 12px;
         background: rgba(224, 244, 255, 0.55);
         backdrop-filter: blur(12px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.5);
         box-shadow: 0 12px 40px rgba(111, 184, 255, 0.15);
+    }
+    .brand-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: transform 0.3s ease;
+    }
+    .brand-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 6px;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+        box-shadow: 0 12px 24px rgba(111, 184, 255, 0.25);
     }
     #top-bar .brand {
         font-size: clamp(1.2rem, 1.6vw, 1.6rem);
@@ -209,24 +229,28 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
-    }
-    .panel-body.blank {
-        justify-content: center;
-        align-items: center;
-        color: rgba(0, 0, 0, 0.4);
+        min-height: 0;
+        overflow: hidden;
     }
 
     .link-list {
         display: flex;
         flex-direction: column;
         gap: 12px;
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 4px;
     }
     .link-slot {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        text-align: left;
         border: 1px solid rgba(0, 0, 0, 0.28);
         background: rgba(224, 244, 255, 0.65);
         border-radius: 14px;
         padding: 16px 20px;
-        text-align: left;
         text-transform: lowercase;
         letter-spacing: 0.06em;
         cursor: pointer;
@@ -237,35 +261,143 @@
         box-shadow: 0 16px 40px rgba(111, 184, 255, 0.35);
         background: rgba(224, 244, 255, 0.85);
     }
+    .link-slot .link-title {
+        font-weight: 600;
+    }
+    .link-slot .link-url {
+        margin-top: 4px;
+        font-size: 0.8rem;
+        letter-spacing: 0.04em;
+        text-transform: none;
+        opacity: 0.7;
+        word-break: break-word;
+    }
 
-    .blog-frame {
+    .markdown-content {
         flex: 1;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        border-radius: 14px;
-        overflow: hidden;
-        background: rgba(255, 255, 255, 0.4);
+        overflow-y: auto;
+        border: 1px solid rgba(0, 0, 0, 0.18);
+        border-radius: 16px;
+        padding: 20px 24px;
+        background: rgba(255, 255, 255, 0.7);
+        color: #0f1a21;
+        line-height: 1.6;
     }
-    .blog-frame iframe {
-        width: 100%;
-        height: 100%;
-        border: 0;
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3 {
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: lowercase;
+        margin-top: 0;
+    }
+    .markdown-content h2 { margin-top: 1.8rem; }
+    .markdown-content h3 { margin-top: 1.4rem; }
+    .markdown-content p { margin: 0 0 1rem; }
+    .markdown-content ul,
+    .markdown-content ol {
+        padding-left: 1.2rem;
+        margin: 0 0 1rem;
+    }
+    .markdown-content li { margin-bottom: 0.4rem; }
+    .markdown-content pre {
+        background: rgba(15, 26, 33, 0.08);
+        padding: 12px 16px;
+        border-radius: 10px;
+        overflow-x: auto;
+    }
+    .markdown-content code {
+        font-family: "Roboto Mono", monospace;
+        font-size: 0.85rem;
+    }
+    .markdown-content img {
+        max-width: 100%;
+        border-radius: 12px;
+        margin: 1rem 0;
     }
 
-    body.layout-expanded #top-bar {
-        justify-content: space-between;
+    .loading-message,
+    .empty-message {
+        font-size: 0.9rem;
+        letter-spacing: 0.05em;
+        text-transform: lowercase;
+        opacity: 0.55;
     }
-    body.layout-expanded .tab-nav {
+
+    .blog-layout {
+        flex: 1;
         display: flex;
+        gap: 18px;
+        min-height: 0;
     }
-    body.layout-expanded .brand {
-        transform: translateX(0);
-        opacity: 1;
+    .blog-list {
+        width: clamp(200px, 28%, 260px);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 6px;
+        min-height: 0;
     }
-    body.layout-overview #top-bar .brand {
+    .blog-list .empty-message,
+    .blog-list .loading-message {
+        margin: 0;
+        text-transform: none;
+        letter-spacing: 0.04em;
+    }
+
+    .blog-button {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        border: 1px solid rgba(0, 0, 0, 0.28);
+        background: rgba(224, 244, 255, 0.6);
+        border-radius: 14px;
+        padding: 14px 18px;
+        text-align: left;
+        text-transform: lowercase;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+    .blog-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 40px rgba(111, 184, 255, 0.35);
+        background: rgba(224, 244, 255, 0.85);
+    }
+    .blog-button.active {
+        background: linear-gradient(180deg, rgba(127, 202, 255, 0.95), rgba(92, 172, 243, 0.95));
+        border-color: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 14px 32px rgba(92, 172, 243, 0.45);
+        color: #04111d;
+    }
+    .blog-button .blog-button-title {
+        font-weight: 600;
+    }
+    .blog-button .blog-button-meta {
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        opacity: 0.65;
+        text-transform: none;
+    }
+    .blog-content {
+        flex: 1;
+        min-height: 0;
+    }
+
+    body.layout-overview #top-bar {
+        justify-content: center;
+    }
+    body.layout-overview .brand-wrap {
         margin-inline: auto;
     }
     body.layout-overview .tab-nav {
         display: none;
+    }
+    body.layout-expanded .tab-nav {
+        display: flex;
     }
     body.layout-expanded .panel {
         transform: none;
@@ -285,7 +417,7 @@
     }
 
     body.layout-mobile #top-bar {
-        justify-content: center;
+        justify-content: space-between;
         padding-inline: clamp(16px, 6vw, 32px);
     }
     body.layout-mobile #top-bar .brand {
@@ -310,6 +442,13 @@
     }
     body.layout-mobile .panel {
         min-height: calc(100vh - 220px);
+    }
+    body.layout-mobile .blog-layout {
+        flex-direction: column;
+    }
+    body.layout-mobile .blog-list {
+        width: 100%;
+        max-height: 160px;
     }
 
     @media (max-width: 960px) {
@@ -339,7 +478,10 @@
   <div id="bubble-layer"></div>
   <div id="app">
     <header id="top-bar">
-      <div class="brand">ayaan rauf</div>
+      <div class="brand-wrap">
+        <img class="brand-logo" src="assets/mii.png" alt="Ayaan Rauf logo" />
+        <div class="brand">ayaan rauf</div>
+      </div>
       <nav class="tab-nav" aria-label="main navigation">
         <button class="tab-button active" data-target="home" type="button">home</button>
         <button class="tab-button" data-target="links" type="button">links</button>
@@ -358,9 +500,22 @@
           </header>
           <div class="panel-body">
             <div class="link-list">
-              <button class="link-slot" type="button">link slot</button>
-              <button class="link-slot" type="button">link slot</button>
-              <button class="link-slot" type="button">link slot</button>
+              <a class="link-slot" href="https://youtube.com/@ayaanrauf_real" target="_blank" rel="noopener noreferrer">
+                <span class="link-title">youtube</span>
+                <span class="link-url">youtube.com/@ayaanrauf_real</span>
+              </a>
+              <a class="link-slot" href="https://instagram.com/ayaanrauf_real" target="_blank" rel="noopener noreferrer">
+                <span class="link-title">instagram</span>
+                <span class="link-url">instagram.com/ayaanrauf_real</span>
+              </a>
+              <a class="link-slot" href="https://instagram.com/ayaanrauf_art" target="_blank" rel="noopener noreferrer">
+                <span class="link-title">art</span>
+                <span class="link-url">instagram.com/ayaanrauf_art</span>
+              </a>
+              <a class="link-slot" href="https://www.tiktok.com/@ayaanrauf_real" target="_blank" rel="noopener noreferrer">
+                <span class="link-title">tiktok</span>
+                <span class="link-url">tiktok.com/@ayaanrauf_real</span>
+              </a>
             </div>
           </div>
         </section>
@@ -372,7 +527,10 @@
               <button class="panel-button panel-collapse" type="button">collapse</button>
             </div>
           </header>
-          <div class="panel-body blank">
+          <div class="panel-body">
+            <article class="markdown-content" data-markdown-target="home">
+              <p class="loading-message">loading home...</p>
+            </article>
           </div>
         </section>
         <section class="panel" data-page="blog">
@@ -384,15 +542,20 @@
             </div>
           </header>
           <div class="panel-body">
-            <div class="blog-frame">
-              <iframe src="https://bearblog.dev" title="bearblog feed" loading="lazy"></iframe>
+            <div class="blog-layout">
+              <div class="blog-list" aria-live="polite">
+                <p class="empty-message">loading posts...</p>
+              </div>
+              <article class="markdown-content blog-content" data-markdown-target="blog">
+                <p class="loading-message">pick a post to start reading.</p>
+              </article>
             </div>
           </div>
         </section>
       </div>
     </main>
   </div>
-  <script>
+  <script type="module">
     (function () {
       const body = document.body;
       const panelGrid = document.querySelector('.panel-grid');
@@ -400,10 +563,49 @@
       const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
       const expandButtons = Array.from(document.querySelectorAll('.panel-expand'));
       const collapseButtons = Array.from(document.querySelectorAll('.panel-collapse'));
+      const homeTarget = document.querySelector('[data-markdown-target="home"]');
+      const blogList = document.querySelector('.blog-list');
+      const blogContent = document.querySelector('.blog-content');
+      const parseMarkdown = (window.marked && window.marked.parse)
+        ? window.marked.parse.bind(window.marked)
+        : (text) => `<pre>${text.replace(/[&<>]/g, (char) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[char] || char))}</pre>`;
+
+      const usingFileProtocol = window.location.protocol === 'file:';
+
+      if (usingFileProtocol) {
+        console.info('Tip: start a quick local server (for example: `python -m http.server`) so markdown content can load.');
+      }
+
+      function resolveAssetUrl(path) {
+        if (!path) {
+          return path;
+        }
+        if (usingFileProtocol) {
+          return path;
+        }
+        const url = new URL(path, window.location.href);
+        url.searchParams.set('v', Date.now().toString());
+        return url.href;
+      }
+
+      async function fetchText(path) {
+        const target = resolveAssetUrl(path);
+        const response = await fetch(target, { cache: 'no-store' });
+        if (!response.ok && response.status !== 0) {
+          throw new Error(`Failed to load ${path}: ${response.status}`);
+        }
+        return response.text();
+      }
+
+      async function fetchJson(path) {
+        const raw = await fetchText(path);
+        return JSON.parse(raw);
+      }
 
       let activePage = 'home';
       let currentMode = 'overview';
       let desktopMode = 'overview';
+      let currentBlogPath = null;
 
       function setActivePage(page) {
         activePage = page;
@@ -511,6 +713,147 @@
       for (let i = 0; i < bubbleCount; i += 1) {
         spawnBubble();
       }
+
+      function setStatusMessage(target, message, type = 'loading') {
+        if (!target) {
+          return;
+        }
+        const className = type === 'empty' ? 'empty-message' : 'loading-message';
+        target.innerHTML = `<p class="${className}">${message}</p>`;
+      }
+
+      async function loadMarkdown(path) {
+        const markdownSource = await fetchText(path);
+        return parseMarkdown(markdownSource);
+      }
+
+      async function renderHome() {
+        if (!homeTarget) {
+          return;
+        }
+        try {
+          const html = await loadMarkdown('home.md');
+          homeTarget.innerHTML = html;
+          homeTarget.scrollTop = 0;
+        } catch (error) {
+          console.error(error);
+          const message = usingFileProtocol
+            ? 'open this page through a local server (for example: `python -m http.server`) to load home.md.'
+            : 'unable to load home.md';
+          setStatusMessage(homeTarget, message, 'empty');
+        }
+      }
+
+      function formatDate(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+          return '';
+        }
+        return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      }
+
+      function buildBlogButton(entry) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'blog-button';
+        const title = document.createElement('span');
+        title.className = 'blog-button-title';
+        title.textContent = entry.title || entry.filename;
+        const meta = document.createElement('span');
+        meta.className = 'blog-button-meta';
+        const formatted = entry.lastModified ? formatDate(entry.lastModified) : '';
+        meta.textContent = formatted || entry.filename || '';
+        button.appendChild(title);
+        if (meta.textContent) {
+          button.appendChild(meta);
+        }
+        button.addEventListener('click', () => {
+          selectBlog(entry, button);
+        });
+        return button;
+      }
+
+      async function fetchBlogManifest() {
+        try {
+          const payload = await fetchJson('blogs/index.json');
+          const posts = Array.isArray(payload.posts) ? payload.posts : [];
+          const normalized = posts
+            .filter(item => item && item.path)
+            .map(item => ({
+              path: item.path,
+              title: item.title || item.filename,
+              filename: item.filename,
+              lastModified: item.lastModified || null
+            }))
+            .sort((a, b) => {
+              const first = b.lastModified ? new Date(b.lastModified).getTime() : 0;
+              const second = a.lastModified ? new Date(a.lastModified).getTime() : 0;
+              return second - first;
+            });
+          return { posts: normalized, error: null };
+        } catch (error) {
+          console.error(error);
+          return { posts: [], error };
+        }
+      }
+
+      async function selectBlog(entry, button) {
+        if (!blogContent || !entry || !entry.path) {
+          return;
+        }
+        if (currentBlogPath === entry.path) {
+          return;
+        }
+        currentBlogPath = entry.path;
+        blogList.querySelectorAll('.blog-button').forEach(btn => {
+          btn.classList.toggle('active', btn === button);
+        });
+        setStatusMessage(blogContent, 'loading post...');
+        try {
+          const html = await loadMarkdown(entry.path);
+          blogContent.innerHTML = html;
+          blogContent.scrollTop = 0;
+        } catch (error) {
+          console.error(error);
+          const message = usingFileProtocol
+            ? 'open this page through a local server to load this post.'
+            : 'unable to load this post';
+          setStatusMessage(blogContent, message, 'empty');
+          currentBlogPath = null;
+        }
+      }
+
+      async function bootstrapBlogPanel() {
+        if (!blogList || !blogContent) {
+          return;
+        }
+        setStatusMessage(blogContent, 'loading posts...');
+        const { posts, error } = await fetchBlogManifest();
+        blogList.innerHTML = '';
+        if (!posts.length) {
+          const emptyText = error
+            ? (usingFileProtocol
+              ? 'open this page through a local server to load blog posts.'
+              : 'unable to load blog posts right now.')
+            : 'add markdown files in the blogs folder to see them here.';
+          setStatusMessage(blogContent, emptyText, 'empty');
+          const listMessage = error
+            ? (usingFileProtocol ? 'local file mode cannot load posts.' : 'unable to load posts.')
+            : 'no posts yet.';
+          blogList.innerHTML = `<p class="empty-message">${listMessage}</p>`;
+          return;
+        }
+        posts.forEach((post, index) => {
+          const button = buildBlogButton(post);
+          blogList.appendChild(button);
+          if (index === 0) {
+            selectBlog(post, button);
+          }
+        });
+      }
+
+      renderHome();
+      bootstrapBlogPanel();
     }());
   </script>
 </body>
