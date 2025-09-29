@@ -1,9 +1,11 @@
-﻿# Hey, I'm Ayaan
+﻿# Hey, I’m Ayaan
 
-Welcome to my corner of the web. I'm a multidisciplinary creative who loves mixing code, beats, and bold visuals.
+I want to experience as much as possible before the clock runs out, like building projects, pursuits of unrealistic and crazy goals, exploring the world, and sometimes something as simple as sharing something I enjoy with the world!
 
-- Music production experiments
-- Behind-the-scenes process shots
-- Thoughts on art, design, and living online
+Our time is limited. 80 years on this planet if we are lucky. Don’t waste it on what doesn’t truly matter to you as a person. Over the last several years, I’ve learned it’s best to fail quickly, over and over again, in the direction you genuinely want to be going in rather than coasting along in a safe and predictable current, drifting away from a life that you dream of living while wishing for some miracle to take you there. One of the worst things a person can suffer is the feeling of despair and regrets, “what if?” with no resolution, so if there is ONE thing you remember from anything and everything that I do… 
 
-Stick around; I will keep this space updated with whatever I am building next.
+CHASE YOUR DREAMS LIKE A MADMAN BEFORE IT’S TOO LATE! 
+
+Many still believe they can only achieve what is “realistic for them”. Every single one of us has unlimited potential. 
+
+The danger is not to aim high and fall short; but rather, to aim low and reach it.
