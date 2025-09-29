@@ -20,7 +20,7 @@
         --shadow-soft: 0 18px 45px rgba(119, 191, 255, 0.3);
     }
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html, body { min-height: 100%; }
     body {
         margin: 0;
         font-family: "Roboto Mono", monospace;
@@ -31,35 +31,10 @@
             rgba(213, 240, 255, 0.28) 48px,
             rgba(213, 240, 255, 0.28) 96px);
         position: relative;
-        overflow-x: hidden;
     }
     a { color: inherit; text-decoration: none; }
     button {
         font-family: "Roboto Mono", monospace;
-    }
-
-    #bubble-layer {
-        position: fixed;
-        inset: 0;
-        overflow: hidden;
-        pointer-events: none;
-        z-index: 0;
-    }
-    .bubble {
-        position: absolute;
-        bottom: -15vh;
-        width: var(--bubble-size);
-        height: var(--bubble-size);
-        border-radius: 50%;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        background: rgba(224, 244, 255, 0.25);
-        backdrop-filter: blur(2px);
-        animation: float-up linear forwards;
-        opacity: 0.55;
-    }
-    @keyframes float-up {
-        from { transform: translate(-50%, 0) scale(1); opacity: 0.55; }
-        to { transform: translate(-50%, -130vh) scale(1.15); opacity: 0; }
     }
 
     #app {
@@ -125,7 +100,7 @@
         font-size: 0.9rem;
         letter-spacing: 0.08em;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease, border-color 0.3s ease;
+        transition: background 0.3s ease, border-color 0.3s ease;
     }
     .tab-button::after {
         content: "";
@@ -136,8 +111,7 @@
         opacity: 0.7;
     }
     .tab-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(111, 184, 255, 0.35);
+        background: linear-gradient(180deg, rgba(213, 240, 255, 0.95), rgba(127, 202, 255, 0.95));
     }
     .tab-button.active {
         background: linear-gradient(180deg, rgba(127, 202, 255, 0.95), rgba(92, 172, 243, 0.95));
@@ -191,15 +165,13 @@
         border: 1px solid var(--outline);
         background: rgba(224, 244, 255, 0.28);
         box-shadow: var(--shadow-soft);
-        overflow: hidden;
         min-height: clamp(260px, 56vh, 620px);
         max-height: min(620px, calc(100vh - 96px));
         height: 100%;
-        transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+        transition: background 0.35s ease, box-shadow 0.35s ease;
     }
     .panel:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 24px 60px rgba(111, 184, 255, 0.4);
+        background: rgba(224, 244, 255, 0.42);
     }
     .panel-header {
         display: flex;
@@ -208,6 +180,7 @@
         padding: 16px 20px;
         background: linear-gradient(180deg, var(--blue-200), var(--blue-300));
         border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: var(--panel-radius) var(--panel-radius) 0 0;
     }
     .panel-title {
         font-weight: 600;
@@ -227,12 +200,10 @@
         letter-spacing: 0.08em;
         text-transform: lowercase;
         cursor: pointer;
-        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        transition: background 0.2s ease;
     }
     .panel-button:hover {
         background: rgba(255, 255, 255, 0.65);
-        transform: translateY(-1px);
-        box-shadow: 0 10px 18px rgba(111, 184, 255, 0.25);
     }
 
     .panel-body {
@@ -244,7 +215,7 @@
         flex-direction: column;
         gap: 16px;
         min-height: 0;
-        overflow: hidden;
+        border-radius: 0 0 var(--panel-radius) var(--panel-radius);
     }
 
     .link-list {
@@ -270,11 +241,9 @@
         text-transform: lowercase;
         letter-spacing: 0.06em;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.25s ease;
+        transition: background 0.25s ease;
     }
     .link-slot:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 16px 40px rgba(111, 184, 255, 0.35);
         background: rgba(224, 244, 255, 0.85);
     }
     .link-slot .link-title {
@@ -356,6 +325,9 @@
     .blog-layout[data-view="list"] .blog-content-panel {
         display: none;
     }
+    .blog-layout[data-view="list"] .blog-back-button {
+        display: none;
+    }
     .blog-layout[data-view="content"] {
         gap: 0;
     }
@@ -364,6 +336,9 @@
     }
     .blog-layout[data-view="content"] .blog-content-panel {
         width: 100%;
+    }
+    .blog-layout[data-view="content"] .blog-back-button {
+        display: inline-flex;
     }
     .blog-list-panel {
         width: clamp(220px, 30%, 280px);
@@ -403,11 +378,9 @@
         text-transform: lowercase;
         letter-spacing: 0.06em;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.25s ease, border-color 0.25s ease;
+        transition: background 0.25s ease, border-color 0.25s ease;
     }
     .blog-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 16px 40px rgba(111, 184, 255, 0.35);
         background: rgba(224, 244, 255, 0.85);
     }
     .blog-button.active {
@@ -432,7 +405,7 @@
         min-height: 0;
     }
     .blog-back-button {
-        display: none;
+        display: inline-flex;
         border: 1px solid rgba(0, 0, 0, 0.28);
         background: rgba(224, 244, 255, 0.7);
         border-radius: 12px;
@@ -443,11 +416,9 @@
         cursor: pointer;
         align-self: flex-start;
         margin-bottom: 12px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        transition: background 0.2s ease;
     }
     .blog-back-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(111, 184, 255, 0.35);
         background: rgba(224, 244, 255, 0.9);
     }
     .blog-content {
@@ -565,7 +536,6 @@
   </style>
 </head>
 <body class="layout-overview">
-  <div id="bubble-layer"></div>
   <div id="app">
     <header id="top-bar">
       <div class="brand-wrap">
@@ -712,19 +682,24 @@
         return currentMode === 'mobile';
       }
 
-      function usingDesktopExpandedBlog() {
-        return currentMode === 'expanded' && activePage === 'blog' && !isMobileMode();
-      }
-
       function syncBlogLayoutView() {
         if (!blogLayout) {
           return;
         }
-        if (isMobileMode()) {
-          blogLayout.dataset.view = currentBlogPath ? 'content' : 'list';
-          return;
+        blogLayout.dataset.view = shouldShowBlogContent() ? 'content' : 'list';
+      }
+
+      function shouldShowBlogContent() {
+        if (!currentBlogPath) {
+          return false;
         }
-        blogLayout.dataset.view = usingDesktopExpandedBlog() ? 'content' : 'list';
+        if (isMobileMode()) {
+          return true;
+        }
+        if (currentMode === 'expanded') {
+          return true;
+        }
+        return activePage === 'blog';
       }
 
       function setActivePage(page) {
@@ -809,32 +784,6 @@
 
       setActivePage(activePage);
       evaluateViewport();
-
-      const bubbleLayer = document.getElementById('bubble-layer');
-      const bubbleCount = 18;
-
-      function spawnBubble() {
-        const bubble = document.createElement('span');
-        bubble.className = 'bubble';
-        const size = Math.random() * 24 + 12;
-        const duration = Math.random() * 12 + 14;
-        const delay = Math.random() * duration;
-
-        bubble.style.setProperty('--bubble-size', `${size}px`);
-        bubble.style.left = `${Math.random() * 100}%`;
-        bubble.style.animationDuration = `${duration}s`;
-        bubble.style.animationDelay = `-${delay}s`;
-
-        bubbleLayer.appendChild(bubble);
-        bubble.addEventListener('animationend', () => {
-          bubble.remove();
-          spawnBubble();
-        });
-      }
-
-      for (let i = 0; i < bubbleCount; i += 1) {
-        spawnBubble();
-      }
 
       function setStatusMessage(target, message, type = 'loading') {
         if (!target) {
@@ -924,10 +873,15 @@
           return;
         }
         if (currentBlogPath === entry.path) {
-          if (isMobileMode()) {
+          if (activePage !== 'blog') {
+            setActivePage('blog');
+          } else {
             syncBlogLayoutView();
           }
           return;
+        }
+        if (activePage !== 'blog') {
+          setActivePage('blog');
         }
         currentBlogPath = entry.path;
         if (blogList) {
@@ -976,27 +930,18 @@
           return;
         }
 
-        let firstChoice = null;
         let preservedSelection = null;
 
         posts.forEach(post => {
           const button = buildBlogButton(post);
           blogList.appendChild(button);
-          if (!firstChoice) {
-            firstChoice = { post, button };
-          }
           if (!preservedSelection && currentBlogPath === post.path) {
             preservedSelection = { post, button };
           }
         });
 
-        const shouldAutoOpen = !isMobileMode();
         if (preservedSelection) {
           selectBlog(preservedSelection.post, preservedSelection.button);
-          return;
-        }
-        if (shouldAutoOpen && firstChoice) {
-          selectBlog(firstChoice.post, firstChoice.button);
           return;
         }
 
@@ -1010,9 +955,6 @@
 
       if (blogBackButton) {
         blogBackButton.addEventListener('click', () => {
-          if (!isMobileMode()) {
-            return;
-          }
           currentBlogPath = null;
           if (blogList) {
             blogList.querySelectorAll('.blog-button').forEach(btn => btn.classList.remove('active'));
